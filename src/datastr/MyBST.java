@@ -242,21 +242,39 @@ public class MyBST<Ttype> {
 	                temp = "";
 	            }
 
-	            expression1.add("-");  // minus is its own token
+	            expression1.add("-");
 	            continue;
 	        }
 
-	        // Numbers and variables
-	        if (Character.isDigit(c) || Character.isLetter(c)) {
+	        // --- FUNCTION NAME (sqrt) ---
+	        if (Character.isLetter(c)) {
 	            temp += c;
-	        }
-	        else {
-	            if (!temp.isEmpty()) {
+
+	            if (i + 1 == expression.length() || !Character.isLetter(expression.charAt(i + 1))) {
 	                expression1.add(temp);
 	                temp = "";
 	            }
-	            expression1.add("" + c);
+	            continue;
 	        }
+
+	        // --- NUMBER ---
+	        if (Character.isDigit(c)) {
+	            temp += c;
+
+	            if (i + 1 == expression.length() || !Character.isDigit(expression.charAt(i + 1))) {
+	                expression1.add(temp);
+	                temp = "";
+	            }
+	            continue;
+	        }
+
+	        // --- OPERATOR OR PARENTHESIS ---
+	        if (!temp.isEmpty()) {
+	            expression1.add(temp);
+	            temp = "";
+	        }
+
+	        expression1.add("" + c);
 	    }
 
 	    if (!temp.isEmpty()) {
@@ -283,6 +301,9 @@ public class MyBST<Ttype> {
 	    for (String t : expression1) sb.append(t);
 
 	    String expr = sb.toString();
+
+	    // sqrt must be processed BEFORE * / + -
+	    expr = correctExpressionHelper(expr, "sqrt");
 	    expr = correctExpressionHelper(expr, "*/");
 	    expr = correctExpressionHelper(expr, "+-");
 
@@ -291,13 +312,33 @@ public class MyBST<Ttype> {
 
 	    return correctExpression(expr);
 	}
-
 	private String correctExpressionHelper(String expr, String ops) {
 	    StringBuilder sb = new StringBuilder(expr);
 
 	    for (int i = 0; i < sb.length(); i++) {
 	        char c = sb.charAt(i);
 
+	        // --- HANDLE sqrt AS UNARY OPERATOR ---
+	        if (ops.equals("sqrt")) {
+	            int idx = sb.indexOf("sqrt", i);
+	            if (idx == -1) break;
+
+	            int start = idx;
+	            int end = idx + 4;
+
+	            // read argument (digits only)
+	            while (end < sb.length() && Character.isDigit(sb.charAt(end))) {
+	                end++;
+	            }
+
+	            sb.insert(start, "(");
+	            sb.insert(end + 1, ")");
+
+	            i = end + 1;
+	            continue;
+	        }
+
+	        // --- NORMAL OPERATORS (* / + -) ---
 	        if (ops.indexOf(c) >= 0) {
 
 	            int leftStart = i - 1;
@@ -390,7 +431,7 @@ public class MyBST<Ttype> {
 		MyNode<String> newNode1 = new MyNode<String>("");
 		rootNode.setLeftChNode((MyNode<Ttype>) newNode1);
 		newNode1.setParentNode((MyNode<String>) rootNode);
-		int index = 1;
+		int index = 0;
 		createMathTreeHelper((MyNode<Ttype>) newNode1, exp, index);
 		howManyElements++;
 	}
@@ -398,7 +439,7 @@ public class MyBST<Ttype> {
 		if (nodeTemp == null) {
 	        return;
 	    }
-		int index1 = ++index;
+		int index1 = index + 1;
 		if(exp.size() <= index1) {
 			return;
 		}
@@ -416,21 +457,33 @@ public class MyBST<Ttype> {
 		}
 		else if (!Character.isDigit(exp.get(index1).charAt(0))) {
 			//ja ir sqrt
+			// --- UNARY MINUS ---
+			if (exp.get(index1).equals("-") &&
+			    (index1 == 0 || exp.get(index1 - 1).equals("("))) {
+
+			    nodeTemp.setElement((Ttype) "-");
+
+			    // left child = 0
+			    MyNode<String> left = new MyNode<>("0");
+			    nodeTemp.setLeftChNode((MyNode<Ttype>) left);
+			    left.setParentNode((MyNode<String>) nodeTemp);
+
+			    // right child = number
+			    MyNode<String> right = new MyNode<>("");
+			    nodeTemp.setRightChNode((MyNode<Ttype>) right);
+			    right.setParentNode((MyNode<String>) nodeTemp);
+
+			    createMathTreeHelper((MyNode<Ttype>) right, exp, index1);
+			    return;
+			}
+
 			if(exp.get(index1).equals("sqrt")) {
 				nodeTemp.setElement((Ttype) exp.get(index1));
 				MyNode<String> newNode = new MyNode<String>("");
-				nodeTemp.setLeftChNode((MyNode<Ttype>) newNode);
+				nodeTemp.setRightChNode((MyNode<Ttype>) newNode);
 				newNode.setParentNode((MyNode<String>) nodeTemp);
 				createMathTreeHelper((MyNode<Ttype>) newNode, exp, index1);
 			}
-			
-//			else if(exp.get(index1).equals("-") && exp.get(index1-1).equals("(") || exp.get(index1-1).equals(")")){
-//				nodeTemp.setElement((Ttype) exp.get(index1));
-//				MyNode<String> newNode = new MyNode<String>("0");
-//				nodeTemp.setLeftChNode((MyNode<Ttype>) newNode);
-//				newNode.setParentNode((MyNode<String>) nodeTemp);
-//				createMathTreeHelper((MyNode<Ttype>) newNode, exp, index1);
-//			}
 			else {
 				nodeTemp.setElement((Ttype) exp.get(index1));
 				MyNode<String> newNode = new MyNode<String>("");
@@ -514,7 +567,7 @@ public class MyBST<Ttype> {
 			return (int) Math.pow(leftNum, rightNum);
 		}
 		if(symbol.equals("sqrt")) {
-			return (int) Math.sqrt(leftNum);
+			return (int) Math.sqrt(rightNum);
 		}
 		return 0;
 	}
@@ -532,13 +585,32 @@ public class MyBST<Ttype> {
 	    if (node == null) {
 	        return 0;
 	    }
+
 	    String element = node.getElement();
-	    if (Character.isDigit(element.charAt(0))) { //========================================
+
+	    // FIX: skip empty nodes
+	    if (element == null || element.isEmpty()) {
+	        // evaluate children instead
+	        int left = calculateMathTreeHelper(node.getLeftChNode());
+	        int right = calculateMathTreeHelper(node.getRightChNode());
+	        return left != 0 ? left : right;
+	    }
+
+	    // number
+	    if (Character.isDigit(element.charAt(0))) {
 	        return stringToNumber(element);
 	    }
+
+	    // sqrt
 	    if (element.equals("sqrt")) {
-	        return (int)Math.sqrt(calculateMathTreeHelper(node.getLeftChNode()));
+	        return calculation(
+	            0,
+	            "sqrt",
+	            calculateMathTreeHelper(node.getRightChNode())
+	        );
 	    }
+
+	    // binary operator
 	    int left = calculateMathTreeHelper(node.getLeftChNode());
 	    int right = calculateMathTreeHelper(node.getRightChNode());
 
