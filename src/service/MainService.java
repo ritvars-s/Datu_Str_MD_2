@@ -35,26 +35,28 @@ public class MainService {
 			bst2.createMathTree(c);
 			bst3.createMathTree(d);
 			
-			//bst1.print();
+			//bst3.print();
 			System.out.println("Calculation pirmā rinda: " + bst0.calculateMathTree());//Calculation pirmā rinda: 20
 			System.out.println("Calculation otrā rinda: " + bst1.calculateMathTree());//			Calculation otrā rinda: 10
 			System.out.println("Calculation trešā rinda: " + bst2.calculateMathTree());//			Calculation trešā rinda: 24
-			System.out.println("Calculation ceturtā rinda: " + bst3.calculateMathTree());//			Calculation ceturtā rinda: -101 nav pareizi
+			System.out.println("Calculation ceturtā rinda: " + bst3.calculateMathTree());//			Calculation ceturtā rinda: -136
+			//bst3.print();
+			
 			for(int i =0; i < a.size(); i++) {
 				System.out.print(a.get(i));
 			}
-			System.out.println("");
-			for(int i =0; i < b.size(); i++) {
-				System.out.print(b.get(i));
-			}
-			System.out.println("");
-			for(int i =0; i < c.size(); i++) {
-				System.out.print(c.get(i));
-			}
-			System.out.println("");
-			for(int i =0; i < d.size(); i++) {
-				System.out.print(d.get(i));
-			}
+//			System.out.println("");
+//			for(int i =0; i < b.size(); i++) {
+//				System.out.print(b.get(i));
+//			}
+//			System.out.println("");
+//			for(int i =0; i < c.size(); i++) {
+//				System.out.print(c.get(i));
+//			}
+//			System.out.println("");
+//			for(int i =0; i < d.size(); i++) {
+//				System.out.println(d.get(i));
+//			}
 			
 			//System.out.println(bst1.isValid("(((22+4)*3)-8)"));
 		}
