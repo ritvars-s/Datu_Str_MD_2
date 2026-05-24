@@ -38,7 +38,7 @@ public class MainService {
 			bst3.createMathTree(d);
 			bst4.createMathTree(e);
 			
-			bst3.print();
+			//bst3.print();
 			System.out.println("Calculation pirmā rinda: " + bst0.calculateMathTree());//Calculation pirmā rinda: 20
 			System.out.println("Calculation otrā rinda: " + bst1.calculateMathTree());//			Calculation otrā rinda: 10
 			System.out.println("Calculation trešā rinda: " + bst2.calculateMathTree());//			Calculation trešā rinda: 24
@@ -58,9 +58,9 @@ public class MainService {
 //				System.out.print(c.get(i));
 //			}
 			System.out.println("");
-			for(int i =0; i < d.size(); i++) {
-				System.out.println(d.get(i));
-			}
+//			for(int i =0; i < d.size(); i++) {
+//				System.out.println(d.get(i));
+//			}
 //			for(int i =0; i < e.size(); i++) {
 //				System.out.println(e.get(i));
 //			}

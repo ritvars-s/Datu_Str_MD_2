@@ -456,27 +456,23 @@ public class MyBST<Ttype> {
 			createMathTreeHelper((MyNode<Ttype>) newNode, exp, index1);
 		}
 		else if (!Character.isDigit(exp.get(index1).charAt(0))) {
-			//ja ir sqrt
-			// --- UNARY MINUS ---
+			//parbauda vai skaitlis nav -...
 			if (exp.get(index1).equals("-") &&
 			    (index1 == 0 || exp.get(index1 - 1).equals("("))) {
-
 			    nodeTemp.setElement((Ttype) "-");
 
-			    // left child = 0
+			    // kreisais
 			    MyNode<String> left = new MyNode<>("0");
 			    nodeTemp.setLeftChNode((MyNode<Ttype>) left);
 			    left.setParentNode((MyNode<String>) nodeTemp);
-
-			    // right child = number
+			    //labais
 			    MyNode<String> right = new MyNode<>("");
 			    nodeTemp.setRightChNode((MyNode<Ttype>) right);
 			    right.setParentNode((MyNode<String>) nodeTemp);
-
 			    createMathTreeHelper((MyNode<Ttype>) right, exp, index1);
 			    return;
 			}
-
+			//ja ir sqrt
 			if(exp.get(index1).equals("sqrt")) {
 				nodeTemp.setElement((Ttype) exp.get(index1));
 				MyNode<String> newNode = new MyNode<String>("");
@@ -494,23 +490,10 @@ public class MyBST<Ttype> {
 	
 		}
 		else {
-//			if (exp.get(index1).charAt(0) == '-') {
-//				nodeTemp.setElement((Ttype) (exp.get(index1).charAt(0) + ""));
-//				MyNode<String> leftNewNode = new MyNode<String>("0");
-//				MyNode<String> rightNewNode = new MyNode<String>(exp.get(index1).substring(1));
-//				nodeTemp.setRightChNode((MyNode<Ttype>) rightNewNode);
-//				nodeTemp.setLeftChNode((MyNode<Ttype>) leftNewNode);
-//				leftNewNode.setParentNode((MyNode<String>) nodeTemp);
-//				rightNewNode.setParentNode((MyNode<String>) nodeTemp);
-//				MyNode<String> parent = (MyNode<String>) nodeTemp.getParentNode();
-//				createMathTreeHelper((MyNode<Ttype>) parent, exp, index1);
-//			}
-	//		else {
 			nodeTemp.setElement((Ttype) exp.get(index1));
 			MyNode<String> newNode = (MyNode<String>) nodeTemp.getParentNode();
 			howManyElements++;
 			createMathTreeHelper((MyNode<Ttype>) newNode, exp, index1);
-			//}
 		}
 		
 	}
