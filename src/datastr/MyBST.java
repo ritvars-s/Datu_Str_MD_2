@@ -227,106 +227,145 @@ public class MyBST<Ttype> {
 	public ArrayList<String> correctExpression(String expression) {
 
 	    expression = expression.replace(" ", "");
-	    int open = 0;
-	    int close = 0;
-	    for (char c : expression.toCharArray()) {
-	        if (c == '(') {
-	        	open++;
-	        }
-	        if (c == ')') {
-	        	close++;
-	        }
-	    }
-	    //ja ir pareizi
-	    if (open == close
-	            && expression.length() > 1
-	            && expression.charAt(0) == '('
-	            && expression.charAt(expression.length() - 1) == ')') {
-
-	        ArrayList<String> arr = new ArrayList<>();
-
-	        String number = "";
-
-	        for (int i = 0; i < expression.length(); i++) {
-
-	            char c = expression.charAt(i);
-
-	            if (Character.isDigit(c)) {
-	                number += c;
-	            } else {
-
-	                if (!number.isEmpty()) {
-	                    arr.add(number);
-	                    number = "";
-	                }
-
-	                arr.add(String.valueOf(c));
-	            }
-	        }
-
-	        if (!number.isEmpty()) {
-	            arr.add(number);
-	        }
-
-	        return arr;
-	    }
-
-	    // ja nav pareizi
-	    expression = expression.replace("(", "").replace(")", "");
-	    ArrayList<String> tokens = new ArrayList<>();
-	    String number = "";
+	    ArrayList<String> expression1 = new ArrayList<>();
+	    String temp = "";
 
 	    for (int i = 0; i < expression.length(); i++) {
 	        char c = expression.charAt(i);
-	        if (Character.isDigit(c)) {
-	            number += c;
-	        } 
-	        else {
-	            if (!number.isEmpty()) {
-	                tokens.add(number);
-	                number = "";
-	            }
-	            tokens.add(String.valueOf(c));
-	        }
-	    }
-	    if (!number.isEmpty()) {
-	        tokens.add(number);
-	    }
-	    while (tokens.size() > 1) {
-	        String left = tokens.get(0);
-	        String op = tokens.get(1);
-	        String right = tokens.get(2);
-	        String combined = "(" + left + op + right + ")";
-
-	        tokens.remove(0);
-	        tokens.remove(0);
-	        tokens.remove(0);
-	        tokens.add(0, combined);
-	    }
-
-	    ArrayList<String> result = new ArrayList<>();
-	    String temp = "";
-	    for (char c : tokens.get(0).toCharArray()) {
-	        if (Character.isDigit(c)) {
+	        if (c == '-' && i + 1 < expression.length() && Character.isDigit(expression.charAt(i + 1)) &&
+	            (i == 0 || expression.charAt(i - 1) == '(' || "+-*/^".contains("" + expression.charAt(i - 1)))) {
 	            temp += c;
-	        } 
+	        }
+	        else if (Character.isDigit(c)) {
+	            temp += c;
+	        }
+	        else if (Character.isLetter(c)) {
+	            temp += c;
+	        }
 	        else {
 	            if (!temp.isEmpty()) {
-	                result.add(temp);
+	            	expression1.add(temp);
 	                temp = "";
 	            }
-	            result.add(String.valueOf(c));
+	            expression1.add("" + c);
 	        }
 	    }
 	    if (!temp.isEmpty()) {
-	        result.add(temp);
+	    	expression1.add(temp);
 	    }
-	    return result;
+
+	    int open = 0, close = 0;
+	    for (String t : expression1) {
+	        if (t.equals("(")) open++;
+	        if (t.equals(")")) close++;
+	    }
+	    boolean balanced = false;
+	    boolean endsCorrect = false;
+	    boolean startsCorrect = false;
+	    if(open == close) {
+	    	balanced = true;
+	    }
+	    if( expression.startsWith("(")) {
+	    	startsCorrect =true;
+	    }
+	   
+	    if(expression.endsWith(")")) {
+	    	endsCorrect = true;
+	    }
+	    //ja nav jamaina
+	    if ((balanced == true) && (startsCorrect == true) && (endsCorrect == true)) {
+	        return expression1;
+	    }
+	    //jamaina
+	    StringBuilder sb = new StringBuilder();
+	    for (String t : expression1) {
+	    	sb.append(t);
+	    } 
+	    String expr = sb.toString();
+	    expr = correctExpressionHelper(expr, "*/");
+	    expr = correctExpressionHelper(expr, "+-");
+
+	    if (!expr.startsWith("(")) {
+	    	expr = "(" + expr;
+	    }
+	    if (!expr.endsWith(")")) {
+	    	expr = expr + ")";
+	    }
+	    return correctExpression(expr);
+	}
+	private String correctExpressionHelper(String expr, String ops) {
+	    StringBuilder sb = new StringBuilder(expr);
+
+	    for (int i = 0; i < sb.length(); i++) {
+	        char c = sb.charAt(i);
+	        if (ops.indexOf(c) >= 0) {
+	            int leftStart = i - 1;
+	            if (sb.charAt(leftStart) == ')') {
+	                int depth = 1;
+	                leftStart--;
+	                while (leftStart >= 0 && depth > 0) {
+	                    if (sb.charAt(leftStart) == ')') depth++;
+	                    if (sb.charAt(leftStart) == '(') depth--;
+	                    leftStart--;
+	                }
+	            }
+	            
+	            else {
+	                while (leftStart >= 0 && Character.isDigit(sb.charAt(leftStart))) {
+	                    leftStart--;
+	                }
+	            }
+	            int rightEnd = i + 1;
+	            if (sb.charAt(rightEnd) == '(') {
+	                int depth = 1;
+	                rightEnd++;
+	                while (rightEnd < sb.length() && depth > 0) {
+	                    if (sb.charAt(rightEnd) == '(') depth++;
+	                    if (sb.charAt(rightEnd) == ')') depth--;
+	                    rightEnd++;
+	                }
+	            } 
+	            
+	            else {
+	                while (rightEnd < sb.length() && Character.isDigit(sb.charAt(rightEnd))) {
+	                    rightEnd++;
+	                }
+	            }
+
+	            sb.insert(leftStart + 1, "(");
+	            sb.insert(rightEnd + 1, ")");
+	            i = rightEnd + 1;
+	        }
+	    }
+
+	    return sb.toString();
 	}
 
 
 
 
+	//pavers parbauda vai string ir skatilis
+	private boolean isNumber(String str) {
+	    if (str == null || str.isEmpty()) {
+	        return false;
+	    }
+	    if (str.charAt(0) == '-' && str.length() > 1) {
+	        for (int i = 1; i < str.length(); i++) {
+
+	            if (!Character.isDigit(str.charAt(i))) {
+	                return false;
+	            }
+	        }
+	        return true;
+	    }
+	    for (int i = 0; i < str.length(); i++) {
+
+	        if (!Character.isDigit(str.charAt(i))) {
+	            return false;
+	        }
+	    }
+	    return true;
+	}
 	//parverš string numura
 	private int stringToNumber(String num) {
 		int number = Integer.parseInt(num);
@@ -368,18 +407,33 @@ public class MyBST<Ttype> {
 			createMathTreeHelper((MyNode<Ttype>) newNode, exp, index1);
 		}
 		else if (exp.get(index1).equals(")")) {
-			
 			MyNode<String> newNode = (MyNode<String>) nodeTemp.getParentNode();
 			createMathTreeHelper((MyNode<Ttype>) newNode, exp, index1);
-			
 		}
-		else if (!Character.isDigit(exp.get(index1).charAt(0))) {
+		else if (!isNumber(exp.get(index1))) {
+			//ja ir sqrt
+			if(exp.get(index1).equals("sqrt")) {
+				nodeTemp.setElement((Ttype) exp.get(index1));
+				MyNode<String> newNode = new MyNode<String>("");
+				nodeTemp.setLeftChNode((MyNode<Ttype>) newNode);
+				newNode.setParentNode((MyNode<String>) nodeTemp);
+				createMathTreeHelper((MyNode<Ttype>) newNode, exp, index1);
+			}
 			
-			nodeTemp.setElement((Ttype) exp.get(index1));
-			MyNode<String> newNode = new MyNode<String>("");
-			nodeTemp.setRightChNode((MyNode<Ttype>) newNode);
-			newNode.setParentNode((MyNode<String>) nodeTemp);
-			createMathTreeHelper((MyNode<Ttype>) newNode, exp, index1);
+//			else if(exp.get(index1).equals("-") && exp.get(index1-1).equals("(") || exp.get(index1-1).equals(")")){
+//				nodeTemp.setElement((Ttype) exp.get(index1));
+//				MyNode<String> newNode = new MyNode<String>("0");
+//				nodeTemp.setLeftChNode((MyNode<Ttype>) newNode);
+//				newNode.setParentNode((MyNode<String>) nodeTemp);
+//				createMathTreeHelper((MyNode<Ttype>) newNode, exp, index1);
+//			}
+			else {
+				nodeTemp.setElement((Ttype) exp.get(index1));
+				MyNode<String> newNode = new MyNode<String>("");
+				nodeTemp.setRightChNode((MyNode<Ttype>) newNode);
+				newNode.setParentNode((MyNode<String>) nodeTemp);
+				createMathTreeHelper((MyNode<Ttype>) newNode, exp, index1);
+			}
 	
 		}
 		else {
@@ -406,7 +460,6 @@ public class MyBST<Ttype> {
 
 	    return treeExpression.equals(newExpression);
 	}
-	
 	public String isValidHelper(MyNode<Ttype> nodeTemp) {
 	    if (nodeTemp == null) {
 	        return "";
@@ -425,6 +478,7 @@ public class MyBST<Ttype> {
 
 	    return treeExp1;
 	}
+	
 	//aprekina izteiksmi
 	private int calculation(int leftNum, String symbol, int rightNum) {
 		if(symbol.equals("+")) {
@@ -442,11 +496,12 @@ public class MyBST<Ttype> {
 		if(symbol.equals("^")) {
 			return (int) Math.pow(leftNum, rightNum);
 		}
-//		if(symbol == "sqrt") {
-//			return sqrt(leftNum);
-//		}
+		if(symbol.equals("sqrt")) {
+			return (int) Math.sqrt(leftNum);
+		}
 		return 0;
 	}
+	
 	public int calculateMathTree() throws Exception {
 		if(isEmpty()) {
 			throw new Exception("Kokā nav neviena elementa ko aprēķināt");
@@ -456,29 +511,32 @@ public class MyBST<Ttype> {
 		return result;
 		
 	}
-	private int calculateMathTreeHelper(MyNode<String> newNode) {
-	    if (Character.isDigit(newNode.getElement().charAt(0))) {
-	        return stringToNumber(newNode.getElement());
-	    }
-	    int leftNum;
-	    int rightNum;
-	    
-	    //kreisais
-	    if (Character.isDigit(newNode.getLeftChNode().getElement().charAt(0))) {
-	        leftNum = stringToNumber(newNode.getLeftChNode().getElement());
-	    }
-	    else {
-	        leftNum = calculateMathTreeHelper(newNode.getLeftChNode());
-	    }
-	    
-	    //labais
-	    if (Character.isDigit(newNode.getRightChNode().getElement().charAt(0))) {
-	        rightNum = stringToNumber(newNode.getRightChNode().getElement());
-	    } 
-	    else {
-	        rightNum = calculateMathTreeHelper(newNode.getRightChNode());
+	private int calculateMathTreeHelper(MyNode<String> node) {
+
+	    if (node == null) {
+	        return 0;
 	    }
 
-	    return calculation(leftNum, newNode.getElement(), rightNum);
+	    String element = node.getElement();
+
+	    if (isNumber(element)) {
+	        return stringToNumber(element);
+	    }
+
+	    // unary sqrt
+	    if (element.equals("sqrt")) {
+
+	        return (int)Math.sqrt(
+	            calculateMathTreeHelper(node.getLeftChNode())
+	        );
+	    }
+
+	    int left =
+	        calculateMathTreeHelper(node.getLeftChNode());
+
+	    int right =
+	        calculateMathTreeHelper(node.getRightChNode());
+
+	    return calculation(left, element, right);
 	}
 }
