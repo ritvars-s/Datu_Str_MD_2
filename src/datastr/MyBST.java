@@ -225,39 +225,29 @@ public class MyBST<Ttype> {
 	
 	//padoto izteiksmē ieliek iekavas //TODO japartaisa isak vai saprotamak
 	public ArrayList<String> correctExpression(String expression) {
-
 	    expression = expression.replace(" ", "");
 	    ArrayList<String> expression1 = new ArrayList<>();
 	    String temp = "";
-
 	    for (int i = 0; i < expression.length(); i++) {
 	        char c = expression.charAt(i);
-
-	        // --- UNARY MINUS FIX ---
 	        if (c == '-' && i + 1 < expression.length() && Character.isDigit(expression.charAt(i + 1)) &&
 	            (i == 0 || expression.charAt(i - 1) == '(' || "+-*/^".contains("" + expression.charAt(i - 1)))) {
-
 	            if (!temp.isEmpty()) {
 	                expression1.add(temp);
 	                temp = "";
 	            }
-
+	            
 	            expression1.add("-");
 	            continue;
 	        }
-
-	        // --- FUNCTION NAME (sqrt) ---
 	        if (Character.isLetter(c)) {
 	            temp += c;
-
 	            if (i + 1 == expression.length() || !Character.isLetter(expression.charAt(i + 1))) {
 	                expression1.add(temp);
 	                temp = "";
 	            }
 	            continue;
 	        }
-
-	        // --- NUMBER ---
 	        if (Character.isDigit(c)) {
 	            temp += c;
 
@@ -267,25 +257,24 @@ public class MyBST<Ttype> {
 	            }
 	            continue;
 	        }
-
-	        // --- OPERATOR OR PARENTHESIS ---
 	        if (!temp.isEmpty()) {
 	            expression1.add(temp);
 	            temp = "";
 	        }
-
 	        expression1.add("" + c);
 	    }
 
 	    if (!temp.isEmpty()) {
 	        expression1.add(temp);
 	    }
-
-	    // --- Parentheses balancing logic ---
 	    int open = 0, close = 0;
 	    for (String t : expression1) {
-	        if (t.equals("(")) open++;
-	        if (t.equals(")")) close++;
+	        if (t.equals("(")) {
+	        	open++;
+	        }
+	        if (t.equals(")")) {
+	        	close++;
+	        }
 	    }
 
 	    boolean balanced = open == close;
@@ -296,54 +285,46 @@ public class MyBST<Ttype> {
 	        return expression1;
 	    }
 
-	    // Rebuild and correct expression
 	    StringBuilder sb = new StringBuilder();
-	    for (String t : expression1) sb.append(t);
-
+	    for (String t : expression1) {
+	    	sb.append(t);
+	    }
 	    String expr = sb.toString();
-
-	    // sqrt must be processed BEFORE * / + -
 	    expr = correctExpressionHelper(expr, "sqrt");
 	    expr = correctExpressionHelper(expr, "*/");
 	    expr = correctExpressionHelper(expr, "+-");
-
-	    if (!expr.startsWith("(")) expr = "(" + expr;
-	    if (!expr.endsWith(")")) expr = expr + ")";
+	    if (!expr.startsWith("(")) {
+	    	expr = "(" + expr;
+	    }
+	    if (!expr.endsWith(")")) {
+	    	expr = expr + ")";
+	    }
 
 	    return correctExpression(expr);
 	}
 	private String correctExpressionHelper(String expr, String ops) {
 	    StringBuilder sb = new StringBuilder(expr);
-
 	    for (int i = 0; i < sb.length(); i++) {
 	        char c = sb.charAt(i);
-
-	        // --- HANDLE sqrt AS UNARY OPERATOR ---
 	        if (ops.equals("sqrt")) {
 	            int idx = sb.indexOf("sqrt", i);
-	            if (idx == -1) break;
-
+	            if (idx == -1) {
+	            	break;
+	            }
+	            
 	            int start = idx;
 	            int end = idx + 4;
-
-	            // read argument (digits only)
 	            while (end < sb.length() && Character.isDigit(sb.charAt(end))) {
 	                end++;
 	            }
-
 	            sb.insert(start, "(");
 	            sb.insert(end + 1, ")");
-
 	            i = end + 1;
+	            
 	            continue;
 	        }
-
-	        // --- NORMAL OPERATORS (* / + -) ---
 	        if (ops.indexOf(c) >= 0) {
-
 	            int leftStart = i - 1;
-
-	            // Left side
 	            if (sb.charAt(leftStart) == ')') {
 	                int depth = 1;
 	                leftStart--;
@@ -352,64 +333,38 @@ public class MyBST<Ttype> {
 	                    if (sb.charAt(leftStart) == '(') depth--;
 	                    leftStart--;
 	                }
-	            } else {
+	            }
+	            else {
 	                while (leftStart >= 0 && Character.isDigit(sb.charAt(leftStart))) {
 	                    leftStart--;
 	                }
 	            }
-
-	            // Right side
 	            int rightEnd = i + 1;
-
 	            if (sb.charAt(rightEnd) == '(') {
 	                int depth = 1;
 	                rightEnd++;
 	                while (rightEnd < sb.length() && depth > 0) {
-	                    if (sb.charAt(rightEnd) == '(') depth++;
-	                    if (sb.charAt(rightEnd) == ')') depth--;
+	                    if (sb.charAt(rightEnd) == '(') {
+	                    	depth++;
+	                    }
+	                    if (sb.charAt(rightEnd) == ')') {
+	                    	depth--;
+	                    }
 	                    rightEnd++;
 	                }
-	            } else {
+	            } 
+	            else {
 	                while (rightEnd < sb.length() && Character.isDigit(sb.charAt(rightEnd))) {
 	                    rightEnd++;
 	                }
 	            }
-
 	            sb.insert(leftStart + 1, "(");
 	            sb.insert(rightEnd + 1, ")");
 	            i = rightEnd + 1;
 	        }
 	    }
-
 	    return sb.toString();
 	}
-
-
-
-
-
-	//pavers parbauda vai string ir skatilis
-//	private boolean isNumber(String str) {
-//	    if (str == null || str.isEmpty()) {
-//	        return false;
-//	    }
-//	    if (str.charAt(0) == '-' && str.length() > 1) {
-//	        for (int i = 1; i < str.length(); i++) {
-//
-//	            if (!Character.isDigit(str.charAt(i))) {
-//	                return false;
-//	            }
-//	        }
-//	        return true;
-//	    }
-//	    for (int i = 0; i < str.length(); i++) {
-//
-//	        if (!Character.isDigit(str.charAt(i))) {
-//	            return false;
-//	        }
-//	    }
-//	    return true;
-//	}
 	
 	//parverš string numura
 	private int stringToNumber(String num) {
@@ -422,7 +377,6 @@ public class MyBST<Ttype> {
 		if(isFull()) {
 			throw new Exception("Koks ir pilns un nevar vairs pievienot jaunus elementus");
 		}
-		//koks ir tuk'ss, tad ieliekam primo ka root
 		if(exp == null || exp.isEmpty()) {
 			  throw new Exception("Izteiksme ir tukša");
 		}
@@ -457,8 +411,7 @@ public class MyBST<Ttype> {
 		}
 		else if (!Character.isDigit(exp.get(index1).charAt(0))) {
 			//parbauda vai skaitlis nav -...
-			if (exp.get(index1).equals("-") &&
-			    (index1 == 0 || exp.get(index1 - 1).equals("("))) {
+			if (exp.get(index1).equals("-") && (index1 == 0 || exp.get(index1 - 1).equals("("))) {
 			    nodeTemp.setElement((Ttype) "-");
 
 			    // kreisais
@@ -523,7 +476,10 @@ public class MyBST<Ttype> {
 	    if (nodeTemp.getLeftChNode() != null) {
 	        treeExp1 += isValidHelper(nodeTemp.getLeftChNode());
 	    }
-	    treeExp1 += nodeTemp.getElement();
+	    if(nodeTemp.getElement() != "0") {
+	    	treeExp1 += nodeTemp.getElement();
+	    }
+	    
 
 	    if (nodeTemp.getRightChNode() != null) {
 	        treeExp1 += isValidHelper(nodeTemp.getRightChNode());
@@ -568,35 +524,88 @@ public class MyBST<Ttype> {
 	    if (node == null) {
 	        return 0;
 	    }
-
 	    String element = node.getElement();
-
-	    // FIX: skip empty nodes
 	    if (element == null || element.isEmpty()) {
-	        // evaluate children instead
 	        int left = calculateMathTreeHelper(node.getLeftChNode());
 	        int right = calculateMathTreeHelper(node.getRightChNode());
-	        return left != 0 ? left : right;
+	        if (left != 0) {
+	            return left;
+	        }
+	        else {
+	            return right;
+	        }	
 	    }
 
-	    // number
+	    //skaitlis
 	    if (Character.isDigit(element.charAt(0))) {
 	        return stringToNumber(element);
 	    }
 
-	    // sqrt
+	    //sqrt
 	    if (element.equals("sqrt")) {
-	        return calculation(
-	            0,
-	            "sqrt",
-	            calculateMathTreeHelper(node.getRightChNode())
-	        );
+	        return calculation(0, "sqrt",calculateMathTreeHelper(node.getRightChNode()));
 	    }
-
-	    // binary operator
 	    int left = calculateMathTreeHelper(node.getLeftChNode());
 	    int right = calculateMathTreeHelper(node.getRightChNode());
 
 	    return calculation(left, element, right);
 	}
+	//koka izmaiņa
+//	public void editExpressionTree(String originalExpression, String needEdit, String editTo) throws Exception{
+//		if(rootNode == null) {
+//			throw new Exception("Nav koka ko mainīt");
+//		}
+//		
+//		ArrayList<String> originalArr = correctExpression(originalExpression);
+//		ArrayList<String> needEditArr = correctExpression(needEdit);
+//		ArrayList<String> editToArr = correctExpression(editTo);
+//		int same = 0;
+//		int position = 0;
+//		for(int i = 0; i < originalArr.size(); i++) {
+//		    if(same < needEditArr.size() && originalArr.get(i).equals(needEditArr.get(same))) {
+//		        same++;
+//		        if(same == needEditArr.size()) {
+//		            position = i;
+//		            break;
+//		        }
+//		    }
+//		    else {
+//		        same = 0;
+//		    }
+//		}
+//		if(same != needEditArr.size()) {
+//			throw new Exception("Padotā izteiksmi nevar mainīt");
+//		}
+//		
+//		editExpressionTreeHelper(position, editToArr, (MyNode<String>) rootNode);
+//	}
+//	private void editExpressionTreeHelper(int position, ArrayList<String> editToArr, MyNode<String> nodeTemp) {
+//		if (nodeTemp == null) {
+//	        return;
+//	    }
+//		if(position == 3) {
+//			MyNode<String> leftCh = nodeTemp.getLeftChNode();
+//			leftCh.setElement(editToArr.get(0));
+//			MyNode<String> rightCh = nodeTemp.getRightChNode();
+//			rightCh.setElement(editToArr.get(2));
+//			nodeTemp.setElement(editToArr.get(1));
+//			position = 2;
+//			return;	
+//		}
+//		
+//		else if(nodeTemp.getElement() != null && !nodeTemp.getElement().isEmpty() && !Character.isDigit(nodeTemp.getElement().charAt(0))) {
+//			editExpressionTreeHelper(position-1, editToArr, nodeTemp.getLeftChNode());
+//			return;
+//		}
+//		else {
+//			if(nodeTemp.getElement().equals(nodeTemp.getParentNode().getLeftChNode().getElement())) {
+//				editExpressionTreeHelper(position-1, editToArr, nodeTemp.getParentNode().getRightChNode());
+//				return;
+//			}
+//			else {
+//				editExpressionTreeHelper(position-1, editToArr, nodeTemp.getParentNode().getParentNode().getRightChNode());
+//				return;
+//			}
+//		}
+//	}
 }

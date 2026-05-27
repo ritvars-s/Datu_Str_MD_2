@@ -18,12 +18,12 @@ public class MainService {
 		ArrayList<String> expressions = new ArrayList<String>();
 		try {
 			
-			expressions = readTextFile("C:\\Users\\kysmc\\Desktop\\expressions.txt");//C:\Users\kysmc\Desktop\expressions.txt
+			expressions = readTextFile("/home/ritvars/Desktop/tests/expressions.txt");//C:\Users\kysmc\Desktop\expressions.txt
 			for(int i =0; i < expressions.size(); i++) {
 				System.out.println(expressions.get(i));
 			}
 			//-136
-			
+			System.out.println("(((9*6)+5)+sqrt4)");
 			
 			//System.out.println(bst1.expressionToArray("2+3*5+4/2"));
 			//System.out.println(a);
@@ -38,13 +38,32 @@ public class MainService {
 			bst3.createMathTree(d);
 			bst4.createMathTree(e);
 			
+			
 			//bst3.print();
 			System.out.println("Calculation pirmā rinda: " + bst0.calculateMathTree());//Calculation pirmā rinda: 20
 			System.out.println("Calculation otrā rinda: " + bst1.calculateMathTree());//			Calculation otrā rinda: 10
 			System.out.println("Calculation trešā rinda: " + bst2.calculateMathTree());//			Calculation trešā rinda: 24
 			System.out.println("Calculation ceturtā rinda: " + bst3.calculateMathTree());//			Calculation ceturtā rinda: -136
 			System.out.println("Sqrt tests: " + bst4.calculateMathTree()); //61 pareiza
-			//bst3.print();
+			//bst1.print();
+			
+			//isvalid
+			System.out.println();
+			System.out.println("Validacijas parbaude");
+			System.out.println(bst0.isValid("((2+3)*4)"));
+			System.out.println(bst1.isValid("(((2+4)*3)-8)"));
+			System.out.println(bst2.isValid("(((7+1)*(2+2))-8)"));
+			System.out.println(bst3.isValid("(((-7)*5)-(98+(12/4)))"));
+			System.out.println(bst4.isValid("(((9*6)+5)+sqrt4)"));
+			
+			
+			//expressionEdit
+			
+			//System.out.println("Edit parbaude");
+			//public void editExpressionTree(String originalExpression, String needEdit, String editTo)
+			//bst0.editExpressionTree("((2+3)*4)", "(2+3)", "2+2)");
+			//System.out.println("Calculation pirmā rinda: " + bst0.calculateMathTree());
+			
 			
 //			for(int i =0; i < a.size(); i++) {
 //				System.out.print(a.get(i));
